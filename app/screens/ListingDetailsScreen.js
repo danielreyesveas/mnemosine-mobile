@@ -1,27 +1,37 @@
 import React from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
-import AppText from "../components/Text";
+import { Platform, StyleSheet, View } from "react-native";
+import { Image } from "react-native-expo-image-cache";
+
+import Text from "../components/Text";
 import ListItem from "../components/lists/ListItem";
 import colors from "../config/colors";
+import ContactSellerForm from "../components/ContactSellerForm";
+import { ScrollView } from "react-native-gesture-handler";
 
 export default function ListingDetailsScreen({ route }) {
 	const listing = route.params;
 
 	return (
-		<View>
-			<Image source={listing.image} style={styles.image} />
+		<ScrollView>
+			<Image
+				uri={listing.images[0].url}
+				preview={{ uri: listing.images[0].thumbnailUrl }}
+				tint="light"
+				style={styles.image}
+			/>
 			<View style={styles.detailsContainer}>
-				<AppText style={styles.title}>{listing.title}</AppText>
-				<AppText style={styles.price}>${listing.price}</AppText>
+				<Text style={styles.title}>{listing.title}</Text>
+				<Text style={styles.price}>${listing.price}</Text>
 				<View style={styles.userContainer}>
 					<ListItem
-						image={require("../assets/mosh.jpg")}
+						image={require("../assets/profile.jpg")}
 						title="Louis Skolnick"
 						subtitle="5 Listings"
 					/>
 				</View>
+				<ContactSellerForm listing={listing} />
 			</View>
-		</View>
+		</ScrollView>
 	);
 }
 

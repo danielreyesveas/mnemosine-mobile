@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FlatList, StyleSheet } from "react-native";
 
 import Card from "../components/Card";
@@ -6,39 +6,51 @@ import Screen from "../components/Screen";
 import colors from "../config/colors";
 import routes from "../navigation/routes";
 
-const listings = [
-	{
-		id: 1,
-		title: "Red jacket for sale",
-		price: 100,
-		image: require("../assets/jacket.jpg"),
-	},
-	{
-		id: 2,
-		title: "Couch in great condition",
-		price: 1000,
-		image: require("../assets/couch.jpg"),
-	},
-];
+import listingsApi from "../api/listings";
+import Button from "../components/Button";
+import Text from "../components/Text";
+import ActivityIndicator from "../components/ActivityIndicator";
+import useApi from "../hooks/useApi";
 
 export default function ListingsScreen({ navigation }) {
+	const { data: listings, error, loading, request: loadListings } = useApi(
+		listingsApi.getListings
+	);
+
+	useEffect(() => {
+		loadListings();
+	}, []);
+
 	return (
-		<Screen style={styles.screen}>
-			<FlatList
-				data={listings}
-				keyExtractor={(listing) => listing.id.toString()}
-				renderItem={({ item }) => (
-					<Card
-						title={item.title}
-						subtitle={"$" + item.price}
-						image={item.image}
-						onPress={() =>
-							navigation.navigate(routes.LISTING_DETAILS, item)
-						}
-					/>
+		<>
+			<ActivityIndicator visible={loading} />
+			<Screen style={styles.screen}>
+				{error && (
+					<>
+						<Text>Couldn't retrieve the listings.</Text>
+						<Button title="Retry" onPress={loadListings} />
+					</>
 				)}
-			/>
-		</Screen>
+				<FlatList
+					data={listings}
+					keyExtractor={(listing) => listing.id.toString()}
+					renderItem={({ item }) => (
+						<Card
+							title={item.title}
+							subtitle={"$" + item.price}
+							imageUrl={item.images[0].url}
+							onPress={() =>
+								navigation.navigate(
+									routes.LISTING_DETAILS,
+									item
+								)
+							}
+							thumbnailUrl={item.images[0].thumbnailUrl}
+						/>
+					)}
+				/>
+			</Screen>
+		</>
 	);
 }
 
